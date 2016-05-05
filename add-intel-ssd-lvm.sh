@@ -25,8 +25,12 @@ do
         partition_disk $i;
 done
 
-vgcreate pciessd /dev/sd$1 /dev/sd$2 /dev/sd$3 /dev/sd$4
+vgcreate pciessd /dev/sd${1}1 /dev/sd${2}1 /dev/sd${3}1 /dev/sd${4}1
 
 #  Now you just need to make a logical volume (or twelve) and formate with your
 #  chosen file system.
+# e.g.
+# maxsize=$(vgs | grep pciessd | awk '{print $7}')
+# lvcreate -L$maxsize -i 4 -n postgres pciessd /dev/sd${1}1 /dev/sd${2}1 /dev/sd${3}1 /dev/sd${4}1
+# mkfs.xfs /dev/pciessd/postgres
 
