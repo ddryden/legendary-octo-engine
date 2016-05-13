@@ -1,8 +1,17 @@
 #!/bin/bash
 
+ethtool_installed=1
+if ! hash ethtool 2>/dev/null; then
+	echo "No ethtool"
+	ethtool_installed=0
+fi
+
 
 # https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Networking_Guide/sec-Using_Channel_Bonding.html
-function mii_supported() {
+function mii_supported( ) {
+	if [ $ethtool_installed = 0 ]; then
+		return 0
+	fi
 	# Do the slaves support media-independent interface(MII)
 	interface=$1
 	ethtool $interface | grep "Link detected:"
@@ -31,10 +40,11 @@ do
 
 	for slave in slaves;
 	do
-		mii_supported($slave)
+		mii_supported $slave 
 		if [ $? -ne 0 ]; then
 			can_mii_mon=0
 			echo "Interface $slave seems to not support MII monitoring."
+			happy_with_bonds=1
 		fi
 	done
 
@@ -66,6 +76,11 @@ do
                 happy_with_bonds=1
         fi
 
+	num_grat_arp=$(cat /sys/class/net/$bond/bonding/num_grat_arp)
+	if [ $num_grat_arp -ne 25 ]; then
+		echo "num_grat_arp==$num_grat_arp not 25 :("
+		happy_with_bonds=1
+	fi
 	
 done
 
