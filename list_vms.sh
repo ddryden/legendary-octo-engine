@@ -28,7 +28,7 @@ do
 	if [ $flag_all -eq 1 ]; then
 		ssh root@$hyper 'virsh list --all'
 	elif [ $flag_util -eq 1 ]; then
-		ssh root@$hyper 'uptime; free -h; vgs'
+		ssh root@$hyper 'echo -n "CPU# "; cat /proc/cpuinfo | grep processor | wc -l; uptime; free -h; vgs'
 		#ssh root@$hyper 'uptime; free -h; lshw -class memory; vgs'
 	else
 		ssh root@$hyper 'virsh list'
